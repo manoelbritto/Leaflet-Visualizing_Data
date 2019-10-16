@@ -11,29 +11,6 @@ function getColor(d) {
   else if (d >= 4 && d < 5) return "#FF6347";
   else if (d >= 5) return "#FF4500";
   return "#FED976";
-
-  //   switch (d) {
-  //     case d >= 0 && d < 1:
-  //       return "#00FF00";
-
-  //     case d >= 1 && d < 2:
-  //       return "#ADFF2F";
-
-  //     case d >= 2 && d < 3:
-  //       return "#FFA500";
-
-  //     case d >= 3 && d < 4:
-  //       return "#DAA520";
-
-  //     case d >= 4 && d < 5:
-  //       return "#FF6347";
-
-  //     case d >= 5:
-  //       return "#FF4500";
-
-  //     default:
-  //       return "#FED976";
-  //   }
 }
 
 //legend
@@ -73,19 +50,32 @@ L.tileLayer(
 var link =
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
-// Grabbing our GeoJSON data..
 d3.json(link, function(data) {
   // Creating a GeoJSON layer with the retrieved data
-  L.geoJson(data, {
-    style: function(feature) {
-      return {
-        color: "white",
-        fillColor: getColor(feature.properties.mag),
-        fillOpacity: 0.5,
-        weight: 1.5
-      };
-    }
-  }).addTo(map);
+  //   //   L.geoJson(data, { style: style }).addTo(map);
+  for (var i = 0; i < data.features.length; i++) {
+    var latitude = data.features[i].geometry.coordinates[1];
+    var longitude = data.features[i].geometry.coordinates[0];
+    var location = [latitude, longitude];
+    L.circle(location, {
+      fillOpacity: 0.75,
+      color: "transparent",
+      fillColor: getColor(data.features[i].properties.mag),
+      // Adjust radius
+      radius: data.features[i].properties.mag * 40000
+    })
+      .bindPopup(
+        "<h1>Earthquake: " +
+          data.features[i].properties.mag +
+          "</h1> <hr> <h3>Location: </h3>" +
+          "<h4>Latitude: " +
+          latitude +
+          "<p>Longitude: " +
+          longitude +
+          "</h3>"
+      )
+      .addTo(map);
+  }
   console.log(data);
 });
 
