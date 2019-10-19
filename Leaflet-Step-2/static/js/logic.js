@@ -1,9 +1,3 @@
-// Creating map object
-var map = L.map("map", {
-  center: [40.7128, -74.0059],
-  zoom: 3
-});
-
 function getColor(d) {
   if (d >= 0 && d < 1) return "#00FF00";
   else if (d >= 1 && d < 2) return "#ADFF2F";
@@ -35,7 +29,18 @@ legend.onAdd = function(map) {
 };
 
 // Adding tile layer
-L.tileLayer(
+var satellite = L.tileLayer(
+  "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}",
+  {
+    attribution:
+      'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: "mapbox.satellite",
+    accessToken: API_KEY
+  }
+);
+
+var grayscale = L.tileLayer(
   "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}",
   {
     attribution:
@@ -44,27 +49,58 @@ L.tileLayer(
     id: "mapbox.light",
     accessToken: API_KEY
   }
-).addTo(map);
+);
 
-// geojson for when data.beta.nyc is down
+var outdoors = L.tileLayer(
+  "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}",
+  {
+    attribution:
+      'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: "mapbox.outdoors",
+    accessToken: API_KEY
+  }
+);
+
+// setting mapStyle object
+var mapStyle = {
+  color: "orange",
+  weight: 1.5
+};
+
+// Grabbing GeoJSON data..
 var link =
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
+var link2 = "static/data/PB2002_boundaries.json";
+
+var tect_plates;
+var earthquake = [];
+d3.json(link2, function(data) {
+  // Creating a geoJSON layer with the retrieved data
+  tect_plates = L.geoJson(data, {
+    // Passing in our style object
+    style: mapStyle
+  });
+});
 
 d3.json(link, function(data) {
-  // Creating a GeoJSON layer with the retrieved data
-  //   //   L.geoJson(data, { style: style }).addTo(map);
+  // Once we get a response, send the data.features object to the createFeatures function
+  createCircleEarthQuake(data, tect_plates);
+});
+
+function createCircleEarthQuake(data, tect_plates) {
   for (var i = 0; i < data.features.length; i++) {
     var latitude = data.features[i].geometry.coordinates[1];
     var longitude = data.features[i].geometry.coordinates[0];
     var location = [latitude, longitude];
-    L.circle(location, {
-      fillOpacity: 0.75,
-      color: "transparent",
-      fillColor: getColor(data.features[i].properties.mag),
-      // Adjust radius
-      radius: data.features[i].properties.mag * 40000
-    })
-      .bindPopup(
+    earthquake.push(
+      L.circle(location, {
+        fillOpacity: 0.75,
+        color: "transparent",
+        fillColor: getColor(data.features[i].properties.mag),
+        // Adjust radius
+        radius: data.features[i].properties.mag * 40000
+      }).bindPopup(
         "<h1>Earthquake: " +
           data.features[i].properties.mag +
           "</h1> <hr> <h3>Location: </h3>" +
@@ -74,26 +110,36 @@ d3.json(link, function(data) {
           longitude +
           "</h3>"
       )
-      .addTo(map);
+    );
   }
-  console.log(data);
-});
+  // console.log(data);
 
-legend.addTo(map);
+  //// join all values to create different layers
+  // Create a baseMaps object
+  var baseMaps = {
+    Satellite: satellite,
+    Grayscale: grayscale,
+    Outdoors: outdoors
+  };
+  var earthquake2 = L.layerGroup(earthquake);
+  // Create an overlay object
+  var overlayMaps = {
+    "Fault Lines": tect_plates,
+    Earthquakes: earthquake2
+  };
 
-var link = "static/data/PB2002_boundaries.json";
-
-// Our style object
-var mapStyle = {
-  color: "orange",
-  weight: 1.5
-};
-
-// Grabbing our GeoJSON data..
-d3.json(link, function(data) {
-  // Creating a geoJSON layer with the retrieved data
-  L.geoJson(data, {
-    // Passing in our style object
-    style: mapStyle
-  }).addTo(map);
-});
+  // Define a map object
+  var myMap = L.map("map", {
+    center: [40.7128, -74.0059],
+    zoom: 3,
+    layers: [grayscale, earthquake2]
+  });
+  legend.addTo(myMap);
+  // Pass our map layers into our layer control
+  // Add the layer control to the map
+  L.control
+    .layers(baseMaps, overlayMaps, {
+      collapsed: false
+    })
+    .addTo(myMap);
+}
