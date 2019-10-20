@@ -1,3 +1,26 @@
-# Leaflet-Visualizing_Data
+# Project: Mapping Web - Visualizing Data with Leaflet
+This project uses an API from USGS, which provides earthquake data in a number of different formats, updated every 5 minutes. In this project, I am using a GeoJSON format from a data set 'All Earthquakes from the Past 7 Days'.
 
-to access the page of this project, you can go to this link [https://manoelbritto.github.io/Leaflet-Visualizing_Data/](https://manoelbritto.github.io/Leaflet-Visualizing_Data/)
+## Publish
+If you want to see the result/page of this project, then click [here](https://manoelbritto.github.io/Leaflet-Visualizing_Data/).
+
+## Webpage and coding
+This project has two different mapping, each one has a separated folder in this repository.
+
+This mapping below shows the position of the earthquake. The markers reflect the magnitude of the earthquake in their size and color. Earthquakes with higher magnitudes appear larger and darker in color.
+
+![panel](/images/map1.JPG)
+
+Anothe map illustrates the relationship between tectonic plates and seismic activity. Moreover, you can interact on the page turn on or turn of the layters. 
+In addtion, the data on tectonic plates can be found [here](Leaflet-Step-2\static\data)
+
+
+![panel](/images/map2.JPG)
+
+# Features:
+* JavaScript
+  * D3.js
+  * Leaflet.js
+* HTML and CSS3
+* GeoJson
+* JSON
