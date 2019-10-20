@@ -1,5 +1,5 @@
 # Project: Mapping Web - Visualizing Data with Leaflet
-This project uses an API from USGS, which provides earthquake data in several different formats, updated every 5 minutes. In this project, I am using a GeoJSON format from a data set 'All Earthquakes from the Past 7 Days'.
+This project uses an API from [USGS](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php), which provides earthquake data in several different formats, updated every 5 minutes. In this project, I am using a GeoJSON format from a data set 'All Earthquakes from the Past 7 Days'.
 
 ## Publish
 If you want to see the result/page of this project, then click [here](https://manoelbritto.github.io/Leaflet-Visualizing_Data/).
